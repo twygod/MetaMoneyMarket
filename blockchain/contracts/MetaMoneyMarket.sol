@@ -30,6 +30,10 @@ contract MetaMoneyMarket is Ownable, Claimable {
     TokenShare tokenShare;
   }
 
+  event LogDeposit(address tokenAddress, uint256 tokenAmount, address sender, uint256 tokenShare);
+  event LogWithdraw(address tokenAddress, uint256 tokenAmount, address sender, uint256 tokenShare);
+  event LogRebalance(address tokenAddress, uint256[] percentages);
+
   /**
     * @param _moneyMarkets Addresses of adapter contracts for supported money markets
     * @dev The adapters are contracts that implement a given interface, used by this contract to interact with the
@@ -89,6 +93,8 @@ contract MetaMoneyMarket is Ownable, Claimable {
     token.transferFrom(msg.sender, address(this), tokenAmount);
 
     bestMoneyMarket.deposit(tokenAddress, tokenAmount);
+
+    emit LogDeposit(tokenAddress, tokenAmount, msg.sender, tokenSharesToMint);
   }
 
   /**
@@ -142,6 +148,8 @@ contract MetaMoneyMarket is Ownable, Claimable {
       tokensToTransfer == 0,
       "MetaMoneyMarket.withdraw: Not all tokens could be withdrawn"
     );
+
+    emit LogWithdraw(tokenAddress, tokenSupply * tokenShareAmount / tokenShareSupply, msg.sender, tokenShareAmount);
   }
 
   /**
@@ -229,6 +237,8 @@ contract MetaMoneyMarket is Ownable, Claimable {
       token.balanceOf(address(this)) == 0,
       "MetaMoneyMarket.rebalance: Not all tokens could be rebalanced"
     );
+
+    emit LogRebalance(tokenAddress, percentages);
   }
 
   function claimTokens(address tokenAddress, address recipient)
