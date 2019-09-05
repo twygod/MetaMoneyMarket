@@ -68,7 +68,21 @@ contract MetaMoneyMarket is Ownable, Claimable {
     external
     checkMarketSupported(tokenAddress)
   {
+    require(tokenAmount > 0,
+      'Token amount cannot be zero'
+    );
+
     IERC20 token = IERC20(tokenAddress);
+
+    require(
+      token.balanceOf(msg.sender) >= tokenAmount,
+      "MetaMoneyMarket.deposit: User does not have enough balance"
+    );
+    
+    require(
+      token.allowance(msg.sender, address(this)) >= tokenAmount,
+      "MetaMoneyMarket.deposit: Cannot transfer tokens from the user"
+    );
 
     TokenShare tokenShare = supportedMarkets[tokenAddress].tokenShare;
     uint256 tokenShareSupply = tokenShare.totalSupply();
@@ -82,14 +96,6 @@ contract MetaMoneyMarket is Ownable, Claimable {
 
     (IMoneyMarketAdapter bestMoneyMarket, ) = getBestMoneyMarket(tokenAddress);
 
-    require(
-      token.balanceOf(msg.sender) >= tokenAmount,
-      "MetaMoneyMarket.deposit: User does not have enough balance"
-    );
-    require(
-      token.allowance(msg.sender, address(this)) >= tokenAmount,
-      "MetaMoneyMarket.deposit: Cannot transfer tokens from the user"
-    );
     token.transferFrom(msg.sender, address(this), tokenAmount);
 
     bestMoneyMarket.deposit(tokenAddress, tokenAmount);
