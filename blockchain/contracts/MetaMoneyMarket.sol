@@ -68,21 +68,15 @@ contract MetaMoneyMarket is Ownable, Claimable {
     external
     checkMarketSupported(tokenAddress)
   {
-    require(tokenAmount > 0,
-      'Token amount cannot be zero'
-    );
+    require(tokenAmount > 0);
 
     IERC20 token = IERC20(tokenAddress);
 
     require(
-      token.balanceOf(msg.sender) >= tokenAmount,
-      "MetaMoneyMarket.deposit: User does not have enough balance"
-    );
-    
+      token.balanceOf(msg.sender) >= tokenAmount);
+
     require(
-      token.allowance(msg.sender, address(this)) >= tokenAmount,
-      "MetaMoneyMarket.deposit: Cannot transfer tokens from the user"
-    );
+      token.allowance(msg.sender, address(this)) >= tokenAmount);
 
     TokenShare tokenShare = supportedMarkets[tokenAddress].tokenShare;
     uint256 tokenShareSupply = tokenShare.totalSupply();
@@ -121,8 +115,6 @@ contract MetaMoneyMarket is Ownable, Claimable {
     uint256 tokenShareSupply = tokenShare.totalSupply();
     uint256 tokenSupply = totalSupply(tokenAddress);
 
-    uint256 tokensToTransfer = tokenSupply * tokenShareAmount / tokenShareSupply;
-
     require(
       tokenShare.balanceOf(msg.sender) >= tokenShareAmount,
       "MetaMoneyMarket.withdraw: Not enough token shares"
@@ -132,6 +124,8 @@ contract MetaMoneyMarket is Ownable, Claimable {
       "MetaMoneyMarket.withdraw: Cannot burn token shares"
     );
     tokenShare.burnFrom(msg.sender, tokenShareAmount);
+
+    uint256 tokensToTransfer = tokenSupply * tokenShareAmount / tokenShareSupply;
 
     for (uint256 i = 0; i < moneyMarkets.length && tokensToTransfer > 0; i++) {
       if (!moneyMarkets[i].supportsToken(tokenAddress)) {
