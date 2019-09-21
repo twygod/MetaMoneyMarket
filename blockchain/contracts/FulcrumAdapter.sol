@@ -97,6 +97,11 @@ contract FulcrumAdapter is IMoneyMarketAdapter, Ownable, Claimable {
     // map a token address to a iToken address
     mapping(address => address) public tokenToIToken;
 
+
+    event LogDeposit(address tokenAddress, uint256 iTokenAmount, uint256 tokenAmount);
+    event LogWithdraw(address tokenAddress, uint256 iTokenAmount, uint256 tokenPaid);
+
+
     modifier checkTokenSupported(address tokenAddress) {
         require(_supportsToken(tokenAddress), "Token not supported");
         _;
@@ -145,13 +150,14 @@ contract FulcrumAdapter is IMoneyMarketAdapter, Ownable, Claimable {
 
         // mint iTokens
         token.approve(iTokenAddress, uint256(-1));
-        iToken.mint(address(this), tokenAmount);
 
-        // uint256 mintedAmount = iToken.mint(address(this), tokenAmount);
-        // require(
-        //     mintedAmount == tokenAmount,
-        //     "FulcrumAdapter.deposit: There was an error minting the iToken"
-        // );
+        uint256 iTokenAmount = iToken.mint(address(this), tokenAmount);
+        require(
+            iTokenAmount >= 0,
+            "FulcrumAdapter.deposit: There was an error minting the iToken"
+        );
+
+        emit LogDeposit(tokenAddress, iTokenAmount, tokenAmount);
     }
 
     function withdraw(
@@ -163,12 +169,16 @@ contract FulcrumAdapter is IMoneyMarketAdapter, Ownable, Claimable {
         address iTokenAddress = tokenToIToken[tokenAddress];
         IToken iToken = IToken(iTokenAddress);
 
-        uint256 loanPaidAmount = iToken.burn(address(this), tokenAmount);
-        // require(
-        //     loanPaidAmount == tokenAmount,
-        //     "FulcrumAdapter.withdraw: There was an error redeeming the iToken"
-        // );
-        token.transfer(recipient, tokenAmount);
+        uint256 iTokenAmount = tokenAmount * 1e18 / iToken.tokenPrice();
+
+        uint256 redeemAmount = iToken.burn(address(this), iTokenAmount);
+        require(
+            redeemAmount <= tokenAmount,
+            "FulcrumAdapter.withdraw: There was an error redeeming the iToken"
+        );
+        token.transfer(recipient, redeemAmount);
+
+        emit LogWithdraw(tokenAddress, iTokenAmount, redeemAmount);
     }
 
     function withdrawAll(address tokenAddress, address recipient)
@@ -180,14 +190,14 @@ contract FulcrumAdapter is IMoneyMarketAdapter, Ownable, Claimable {
         address iTokenAddress = tokenToIToken[tokenAddress];
         IToken iToken = IToken(iTokenAddress);
 
-        uint256 recipientBalance = iToken.balanceOf(address(this));
-        uint256 loanPaidAmount = iToken.burn(address(this), recipientBalance);
+        uint256 iTokenAmount = iToken.balanceOf(address(this));
+        uint256 redeemAmount = iToken.burn(address(this), iTokenAmount);
 
-        // require(
-        //     loanPaidAmount == recipientBalance,
-        //     "FulcrumAdapter.withdraw: There was an error redeeming the iToken"
-        // );
-        token.transfer(recipient, recipientBalance);
+        require(
+            redeemAmount >= 0,
+            "FulcrumAdapter.withdraw: There was an error redeeming the iToken"
+        );
+        token.transfer(recipient, redeemAmount);
     }
 
     function claimTokens(address tokenAddress, address recipient) external
