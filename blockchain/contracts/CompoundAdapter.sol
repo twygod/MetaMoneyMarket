@@ -87,10 +87,6 @@ contract CompoundAdapter is IMoneyMarketAdapter, Ownable, Claimable {
   {
     IERC20 token = IERC20(tokenAddress);
     address cTokenAddress = tokenToCToken[tokenAddress];
-    require(
-      cTokenAddress != address(0),
-      "CompoundAdapter.withdraw: Unknown cToken for given token address"
-    );
     CToken cToken = CToken(cTokenAddress);
 
     uint256 result = cToken.redeemUnderlying(
