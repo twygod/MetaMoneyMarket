@@ -409,4 +409,13 @@ contract MetaMoneyMarket is Ownable, Claimable {
 
     return bestRate;
   }
+
+  function getMoneyMarket(address tokenAddress, uint256 marketId)
+    external
+    view
+    returns (uint256 rate, uint256 tokenSupply)
+  {
+    rate = moneyMarkets[marketId].getRate(tokenAddress);
+    tokenSupply += moneyMarkets[marketId].getSupplyView(tokenAddress);
+  }
 }
