@@ -9,87 +9,39 @@ import "./IMoneyMarketAdapter.sol";
 
 
 contract IToken is IERC20 {
-  function mint(
-    address receiver,
-    uint256 depositAmount)
-    external
-    returns (uint256 mintAmount);
+    function mint(
+        address receiver,
+        uint256 depositAmount)
+        external
+        returns (uint256 mintAmount);
 
-  function burn(
-    address receiver,
-    uint256 burnAmount)
-    external
-    returns (uint256 loanAmountPaid);
+    function burn(
+        address receiver,
+        uint256 burnAmount)
+        external
+        returns (uint256 loanAmountPaid);
 
-  function tokenPrice()
-    external
-    view
-    returns (uint256 price);
+    function tokenPrice()
+        external
+        view
+        returns (uint256 price);
 
-  function supplyInterestRate()
-    external
-    view
-    returns (uint256);
+    function supplyInterestRate()
+        external
+        view
+        returns (uint256);
 
-  function rateMultiplier()
-    external
-    view
-    returns (uint256);
+    function claimLoanToken()
+        external
+        returns (uint256 claimedAmount);
 
-  function baseRate()
-    external
-    view
-    returns (uint256);
-
-  function borrowInterestRate()
-    external
-    view
-    returns (uint256);
-
-  function totalAssetBorrow()
-    external
-    view
-    returns (uint256);
-
-  function totalAssetSupply()
-    external
-    view
-    returns (uint256);
-
-  function nextSupplyInterestRate(uint256)
-    external
-    view
-    returns (uint256);
-
-  function nextBorrowInterestRate(uint256)
-    external
-    view
-    returns (uint256);
-  function nextLoanInterestRate(uint256)
-    external
-    view
-    returns (uint256);
-
-  function claimLoanToken()
-    external
-    returns (uint256 claimedAmount);
-
-  function assetBalanceOf(
-    address _owner)
-    external
-    view
-    returns (uint256);
-
-  /* function burnToEther(
-    address receiver,
-    uint256 burnAmount)
-    external
-    returns (uint256 loanAmountPaid);
-
-  function claimLoanToken()
-    external
-    returns (uint256 claimedAmount); */
+    function assetBalanceOf(
+        address _owner)
+        external
+        view
+        returns (uint256);
 }
+
 
 contract FulcrumAdapter is IMoneyMarketAdapter, Ownable, Claimable {
     using SafeMath for uint256;
@@ -124,7 +76,7 @@ contract FulcrumAdapter is IMoneyMarketAdapter, Ownable, Claimable {
 
         uint256 iApr = iToken.supplyInterestRate();
 
-        // Convert to interest rate per block
+        // Convert to interest rate per block, assuming 2102400 blocks per year
         return iApr.div(2102400).div(100);
     }
 
@@ -224,9 +176,9 @@ contract FulcrumAdapter is IMoneyMarketAdapter, Ownable, Claimable {
         return iToken.assetBalanceOf(address(this));
     }
 
-  /**
-    * @dev Indicates if the adapter supports the token with the given address.
-    */
+    /**
+      * @dev Indicates if the adapter supports the token with the given address.
+      */
     function supportsToken(address tokenAddress) external view returns (bool)
     {
         return _supportsToken(tokenAddress);
