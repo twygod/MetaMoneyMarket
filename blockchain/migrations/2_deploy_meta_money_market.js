@@ -63,7 +63,7 @@ module.exports = async function (deployer, network, accounts) {
 
     moneyMarkets = [moneyMarketAdapter1.address, moneyMarketAdapter2.address];
 
-    await deployer.deploy(TestToken, 'TEST1', '2000000000');
+    await deployer.deploy(TestToken, 'TEST1', 'tst', 18, '2000000000');
     const testToken = await TestToken.deployed();
     await testToken.transfer(accounts[1], '100');
     await testToken.transfer(accounts[2], '100');

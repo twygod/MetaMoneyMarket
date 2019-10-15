@@ -41,8 +41,7 @@ contract MetaMoneyMarket is Ownable, Claimable {
     */
   constructor(address[] memory _moneyMarkets) public {
     require(
-      _moneyMarkets.length > 0,
-      "At least one money market has to be specified"
+      _moneyMarkets.length > 0
     );
     for (uint256 i = 0; i < _moneyMarkets.length; i++) {
       moneyMarkets.push(IMoneyMarketAdapter(_moneyMarkets[i]));
@@ -50,7 +49,7 @@ contract MetaMoneyMarket is Ownable, Claimable {
   }
 
   modifier checkMarketSupported(address token) {
-    require(isMarketSupported(token), "Market is not supported");
+    require(isMarketSupported(token));
     _;
   }
 
@@ -116,13 +115,9 @@ contract MetaMoneyMarket is Ownable, Claimable {
     uint256 tokenSupply = totalSupply(tokenAddress);
 
     require(
-      tokenShare.balanceOf(msg.sender) >= tokenShareAmount,
-      "MetaMoneyMarket.withdraw: Not enough token shares"
-    );
+      tokenShare.balanceOf(msg.sender) >= tokenShareAmount    );
     require(
-      tokenShare.allowance(msg.sender, address(this)) >= tokenShareAmount,
-      "MetaMoneyMarket.withdraw: Cannot burn token shares"
-    );
+      tokenShare.allowance(msg.sender, address(this)) >= tokenShareAmount    );
     tokenShare.burnFrom(msg.sender, tokenShareAmount);
 
     uint256 tokensToTransfer = tokenSupply * tokenShareAmount / tokenShareSupply;
@@ -145,9 +140,7 @@ contract MetaMoneyMarket is Ownable, Claimable {
     }
 
     require(
-      tokensToTransfer == 0,
-      "MetaMoneyMarket.withdraw: Not all tokens could be withdrawn"
-    );
+      tokensToTransfer == 0    );
 
     emit LogWithdraw(tokenAddress, tokenSupply * tokenShareAmount / tokenShareSupply, msg.sender, tokenShareAmount);
   }
@@ -164,8 +157,7 @@ contract MetaMoneyMarket is Ownable, Claimable {
   function addMarket(address tokenAddress) external onlyOwner {
     IERC20 token = IERC20(tokenAddress);
     require(
-      !supportedMarkets[tokenAddress].isSupported,
-      "Market is already supported"
+      !supportedMarkets[tokenAddress].isSupported
     );
 
     TokenShare tokenShare = new TokenShare();
@@ -234,8 +226,7 @@ contract MetaMoneyMarket is Ownable, Claimable {
     }
 
     require(
-      token.balanceOf(address(this)) == 0,
-      "MetaMoneyMarket.rebalance: Not all tokens could be rebalanced"
+      token.balanceOf(address(this)) == 0
     );
 
     emit LogRebalance(tokenAddress, percentages);
