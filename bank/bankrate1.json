@@ -1,0 +1,7 @@
+//percent in basis pairs
+{
+  "oneMonth":"800", 
+  "threeMonth" : "600", 
+  "sixMonth" : "400"
+}
+

@@ -1,4 +1,6 @@
 declare module 'truffle-contract';
+declare module '@rebass/forms';
+declare module '@walletconnect/web3-subprovider';
 
 declare type BN = import('bn.js');
 

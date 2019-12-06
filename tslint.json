@@ -12,18 +12,11 @@
     "jsx-no-lambda": false,
     "no-console": false,
     "no-shadowed-variable": false,
-    "no-implicit-dependencies": false
+    "no-implicit-dependencies": false,
+    "ordered-imports": false,
+    "object-literal-sort-keys": false
   },
   "linterOptions": {
-    "exclude": [
-      "config",
-      "public",
-      "node_modules",
-      "src/assets",
-      "src/contracts",
-      "src/services",
-      "src/serviceWorker.ts",
-      "*.json"
-    ]
+    "exclude": ["config", "public", "node_modules", "src/assets", "src/contracts", "src/services", "*.json"]
   }
 }
